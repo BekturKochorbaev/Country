@@ -3,39 +3,24 @@ version: '3.8'
 services:
   backend:
     build:
-      context: .
-      dockerfile: Country/backend/Dockerfile
-    restart: always
-    environment:
-      - DEBUG=0
-      - DATABASE_URL=postgres://user:password@postgres:5432/dbname
-    depends_on:
-      - postgres
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
 
   frontend:
     build:
-      context: .
-      dockerfile: Country/frontend/Dockerfile
-    restart: always
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
 
   nginx:
-    build:
-      context: .
-      dockerfile: nginx/Dockerfile
+    image: nginx:alpine
     ports:
       - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
     depends_on:
       - backend
       - frontend
-
-  postgres:
-    image: postgres:13
-    environment:
-      - POSTGRES_DB=dbname
-      - POSTGRES_USER=user
-      - POSTGRES_PASSWORD=password
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-
-volumes:
-  postgres_data:

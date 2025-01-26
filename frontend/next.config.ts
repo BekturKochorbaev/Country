@@ -1,9 +1,18 @@
-import type { NextConfig } from "next";
+/** @type {import('next').NextConfig} */
+const path = require('path');
 
-const nextConfig: NextConfig = {
-  images: {
-    domains: ["13.61.175.49"], // Добавьте ваш хост
-  },
+const nextConfig = {
+  webpack(config) {
+    config.module.rules.push({
+      test: /\.svg$/,
+      use: ["@svgr/webpack"]
+    });
+
+    config.resolve.alias['@'] = path.resolve(__dirname, 'src');
+    config.resolve.alias['@/assets'] = path.resolve(__dirname, 'src/assets');
+
+    return config;
+  }
 };
 
-export default nextConfig;
+module.exports = nextConfig;
