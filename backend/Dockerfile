@@ -1,15 +1,24 @@
-FROM python:3.12
+# Используем официальный образ Python
+FROM python:3.11-slim
 
-ENV PYTHONUNBUFFERED=1
+# Устанавливаем системные зависимости
+RUN apt-get update && apt-get install -y \
+    postgresql-client \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
 
+# Устанавливаем рабочую директорию
 WORKDIR /app
 
-COPY req.txt /app/
-RUN pip install gunicorn
-RUN pip install setuptools
-RUN pip install --upgrade pip && \
-    pip install -r requirements.txt
+# Копируем requirements и устанавливаем зависимости
+COPY Country/backend/requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
-COPY nginx/nginx.conf /etc/nginx/conf.d/
+# Копируем весь проект
+COPY Country/backend/ .
 
-COPY . /app/
+# Expose порт, который будет использоваться приложением
+EXPOSE 8000
+
+# Команда для запуска приложения
+CMD ["gunicorn", "--bind", "0.0.0.0:8000", "ourcountry.wsgi:application"]
